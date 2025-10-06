@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "ClipCraze.net - Professional Content Clipping Platform",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "build": "echo 'Static site deployed'"
+  },
   "keywords": [
     "clipcraze",
     "content",
