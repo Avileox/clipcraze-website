@@ -78,6 +78,12 @@ contactForm.addEventListener('submit', async (e) => {
 
     // Get form data
     const formData = new FormData(contactForm);
+    const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        subject: formData.get('subject'),
+        message: formData.get('message')
+    };
 
     // Show loading state
     const submitButton = contactForm.querySelector('button[type="submit"]');
@@ -86,26 +92,30 @@ contactForm.addEventListener('submit', async (e) => {
     submitButton.disabled = true;
 
     try {
-        // Send form data to PHP backend
-        const response = await fetch('contact.php', {
+        // Send form data to API route
+        const response = await fetch('/api/contact', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         });
 
-        const data = await response.json();
+        const result = await response.json();
 
-        if (data.success) {
+        if (result.success) {
             // Show success message
-            formMessage.textContent = data.message;
+            formMessage.textContent = result.message;
             formMessage.className = 'form-message success';
             contactForm.reset();
         } else {
             // Show error message
-            formMessage.textContent = data.message;
+            formMessage.textContent = result.message;
             formMessage.className = 'form-message error';
         }
     } catch (error) {
-        // Show error message
+        // Show detailed error message
+        console.error('Contact form error:', error);
         formMessage.textContent = 'An error occurred. Please try again later.';
         formMessage.className = 'form-message error';
     } finally {
@@ -183,4 +193,125 @@ window.addEventListener('scroll', () => {
             link.classList.add('active');
         }
     });
+});
+
+// Scroll Progress Bar
+const scrollProgress = document.querySelector('.scroll-progress');
+
+window.addEventListener('scroll', () => {
+    const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (window.pageYOffset / windowHeight) * 100;
+    scrollProgress.style.width = scrolled + '%';
+});
+
+// Back to Top Button
+const backToTopButton = document.getElementById('backToTop');
+
+window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+        backToTopButton.classList.add('visible');
+    } else {
+        backToTopButton.classList.remove('visible');
+    }
+});
+
+backToTopButton.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+// FAQ Accordion
+const faqQuestions = document.querySelectorAll('.faq-question');
+
+faqQuestions.forEach(question => {
+    question.addEventListener('click', () => {
+        const faqItem = question.parentElement;
+        const isActive = faqItem.classList.contains('active');
+
+        // Close all FAQ items
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Open clicked item if it wasn't active
+        if (!isActive) {
+            faqItem.classList.add('active');
+        }
+    });
+});
+
+// Page Loader - Hide immediately when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    const pageLoader = document.querySelector('.page-loader');
+    if (pageLoader) {
+        // Small delay to show the loader briefly
+        setTimeout(() => {
+            pageLoader.classList.add('hidden');
+        }, 300);
+    }
+});
+
+// Fallback: Hide loader on window load if still visible
+window.addEventListener('load', () => {
+    const pageLoader = document.querySelector('.page-loader');
+    if (pageLoader && !pageLoader.classList.contains('hidden')) {
+        pageLoader.classList.add('hidden');
+    }
+});
+
+// Sticky CTA Button
+const stickyCTA = document.querySelector('.sticky-cta');
+
+window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 600) {
+        stickyCTA.classList.add('visible');
+    } else {
+        stickyCTA.classList.remove('visible');
+    }
+});
+
+// Cookie Consent Banner
+const cookieBanner = document.getElementById('cookieBanner');
+const acceptCookies = document.getElementById('acceptCookies');
+const declineCookies = document.getElementById('declineCookies');
+
+// Check if user has already made a choice
+if (!localStorage.getItem('cookieConsent')) {
+    setTimeout(() => {
+        cookieBanner.classList.add('show');
+    }, 1000);
+}
+
+acceptCookies.addEventListener('click', () => {
+    localStorage.setItem('cookieConsent', 'accepted');
+    cookieBanner.classList.remove('show');
+});
+
+declineCookies.addEventListener('click', () => {
+    localStorage.setItem('cookieConsent', 'declined');
+    cookieBanner.classList.remove('show');
+});
+
+// Newsletter Form
+const newsletterForm = document.getElementById('newsletterForm');
+
+newsletterForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const emailInput = newsletterForm.querySelector('input[type="email"]');
+    const submitButton = newsletterForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+
+    // Show loading state
+    submitButton.textContent = 'Subscribing...';
+    submitButton.disabled = true;
+
+    // Simulate API call
+    setTimeout(() => {
+        alert('Thank you for subscribing to ClipCraze newsletter!');
+        emailInput.value = '';
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+    }, 1000);
 });
